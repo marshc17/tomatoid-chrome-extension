@@ -1,7 +1,7 @@
 {
     "name": "Tomatoid Extension",
     "version": "1.1.1",
-    "description": "An extension with enhancements for Tomatoid. Allows Tomatoid users to clear and save their notes from an existing task and transfer them over to new tasks.",
+    "description": "An extension with enhancements for Tomatoid.",
     "permissions": ["activeTab", "declarativeContent", "storage", "clipboardRead"],
     "background": {
         "scripts": ["background.js"],
