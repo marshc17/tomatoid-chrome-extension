@@ -9,8 +9,10 @@ waitForPopupDomToLoad(function () {
     });
 
     canRestoreNotes(function(enabled) {
-        setButtonDisabledState(restoreNotes, !enabled);
+        setButtonDisabledState(restoreSavedNotes, !enabled);
     });
+
+    setButtonDisabledState(restoreNotesFromClipboard, !canRestoreNotesFromClipboard());
 });
 
 saveAndClearNotes.onclick = function (element) {
@@ -225,12 +227,17 @@ function setButtonDisabledState(buttonElement, disabled) {
 
 function canClearAndSaveNotes(useValue) {
     getNotes(function (notes) {
-        useValue(notes && notes.length > 0);
+        useValue(!!(notes && notes.length > 0));
     });
 }
 
 function canRestoreNotes(useValue) {
     getNotesFromStorage(function(notes) {
-        useValue(notes && notes.length > 0);
+        useValue(!!(notes && notes.length > 0));
     });
+}
+
+function canRestoreNotesFromClipboard() {
+    const trimmedLines = getTrimmedLinesFromClipboard();
+    return !!(trimmedLines && trimmedLines.length > 0);
 }
