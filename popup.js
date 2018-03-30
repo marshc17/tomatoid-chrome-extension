@@ -12,7 +12,7 @@ waitForPopupDomToLoad(function () {
 saveAndClearNotes.onclick = function (element) {
     getNotes(function (notes) {
         copyNotesToClipboard(notes);
-        saveNotesToStorage(notes, function() {
+        saveNotesToStorage(notes, function () {
             deleteNotes(notes);
             refreshMainPage();
             window.close();
@@ -20,12 +20,24 @@ saveAndClearNotes.onclick = function (element) {
     });
 }
 
-restoreNotes.onclick = function (element) {
+restoreSavedNotes.onclick = function (element) {
     getNotesFromStorage(function (notes) {
-        addNotes(notes);
+        const notesAsText = notes.map(function (note) {
+            return note.text;
+        });
+
+        addNotes(notesAsText);
         refreshMainPage();
         window.close();
     });
+}
+
+restoreNotesFromClipboard.onclick = function () {
+    const lines = getTrimmedLinesFromClipboard();
+
+    addNotes(lines);
+    refreshMainPage();
+    window.close();
 }
 
 function waitForPopupDomToLoad(afterLoaded) {
@@ -39,7 +51,7 @@ function getNotes(useNotes) {
         chrome.tabs.sendMessage(currentTab.id, {
             request: 'getNotes'
         }, function (response) {
-            useNotes(response.notes);
+            useNotes(response && response.notes);
         });
     });
 }
@@ -55,22 +67,22 @@ function getCurrentTab(useCurrentTab) {
 
 function copyTextToClipboard(text) {
     const hiddenTextarea = createHiddenTextarea();
-    const errorMessage = 'Failed to copy text to clipboard.';
 
     hiddenTextarea.value = text;
-    hiddenTextarea.select();
+    selectElementAndExecCommand(hiddenTextarea, 'copy');
+    removeElement(hiddenTextarea);
+}
 
-    try {
-        const status = document.execCommand('copy');
+function getTextFromClipboard() {
+    const hiddenTextarea = createHiddenTextarea();
 
-        if (!status) {
-            console.error(errorMessage);
-        }
-    } catch (err) {
-        console.error(errorMessage, err);
-    }
+    selectElementAndExecCommand(hiddenTextarea, 'paste');
 
-    removeHiddenTextarea();
+    const result = hiddenTextarea.value;
+
+    removeElement(hiddenTextarea);
+
+    return result;
 }
 
 function createHiddenTextarea() {
@@ -99,12 +111,27 @@ function createHiddenTextarea() {
     hiddenTextarea.style.background = 'transparent';
     document.querySelector('body').appendChild(hiddenTextarea);
 
-    return document.getElementById(hiddenTextareaId);
+    return hiddenTextarea;
 }
 
-function removeHiddenTextarea() {
-    const hiddenTextarea = document.getElementById(hiddenTextareaId);
-    document.body.removeChild(hiddenTextarea);
+function selectElementAndExecCommand(element, command) {
+    const errorMessage = 'Failed to copy text from clipboard.';
+
+    element.select();
+
+    try {
+        const status = document.execCommand(command);
+
+        if (!status) {
+            console.error(errorMessage, status);
+        }
+    } catch (err) {
+        console.error(errorMessage, err);
+    }
+}
+
+function removeElement(element) {
+    document.body.removeChild(element);
 }
 
 function copyNotesToClipboard(notes) {
@@ -119,7 +146,7 @@ function copyNotesToClipboard(notes) {
 
 function addNotes(notes) {
     notes.reverse().forEach(function (note) {
-        addNewNoteToPage(note.text);
+        addNewNoteToPage(note);
     });
 }
 
@@ -160,6 +187,18 @@ function getNotesFromStorage(useNotes) {
     chrome.storage.sync.get(['notes'], function (result) {
         useNotes(result.notes);
     });
+}
+
+function getTrimmedLinesFromClipboard(useNotes) {
+    const rawClipboardText = getTextFromClipboard();
+
+    const trimmedLines = rawClipboardText.split('\n').map(function (line) {
+        return line.trim();
+    }).filter(function (line) {
+        return line.length > 0;
+    });
+
+    return trimmedLines;
 }
 
 function refreshMainPage() {

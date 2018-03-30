@@ -3,7 +3,7 @@
     <head>
         <style>
             button {
-                width: 180px;
+                width: 240px;
                 outline: none;
                 background-color: #FF4F4F;
                 border: none;
@@ -12,14 +12,15 @@
                 font-weight: bold;
             }
 
-            #saveAndClearNotes {
+            .bottom-separator {
                 margin-bottom: 8px;
             }
         </style>
     </head>
     <body>
-        <button id="saveAndClearNotes">Save and Clear Notes</button>
-        <button id="restoreNotes">Restore Notes</button>
+        <button id="saveAndClearNotes" class="bottom-separator">Save and Clear Notes</button>
+        <button id="restoreSavedNotes" class="bottom-separator">Restore Saved Notes</button>
+        <button id="restoreNotesFromClipboard">Restore Notes From Clipboard</button>
         <script src="popup.js"></script>
     </body>
 </html>

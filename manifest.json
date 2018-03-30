@@ -2,7 +2,7 @@
     "name": "Tomatoid Extension",
     "version": "1.0.0",
     "description": "An extension with enhancements for Tomatoid.",
-    "permissions": ["activeTab", "declarativeContent", "storage"],
+    "permissions": ["activeTab", "declarativeContent", "storage", "clipboardRead"],
     "background": {
         "scripts": ["background.js"],
         "persistent": false
