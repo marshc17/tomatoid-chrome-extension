@@ -4,29 +4,32 @@ const hiddenTextareaId = 'hidden-clipboard-text-element';
 const requestUrlBasePath = 'https://www.tomatoid.com/';
 
 waitForPopupDomToLoad(function () {
-    canClearAndSaveNotes(function (enabled) {
-        setButtonDisabledState(saveAndClearNotes, !enabled);
+    canSaveNotes(function (enabled) {
+        setButtonDisabledState(saveNotes, !enabled);
     });
 
-    canRestoreNotes(function(enabled) {
-        setButtonDisabledState(restoreSavedNotes, !enabled);
+    canRestoreNotes(function (enabled) {
+        setButtonDisabledState(restoreNotes, !enabled);
     });
 
     setButtonDisabledState(restoreNotesFromClipboard, !canRestoreNotesFromClipboard());
+
+    canClearNotes(function (enabled) {
+        setButtonDisabledState(clearNotes, !enabled);
+    });
 });
 
-saveAndClearNotes.onclick = function (element) {
+saveNotes.onclick = function (element) {
     getNotes(function (notes) {
         copyNotesToClipboard(notes);
         saveNotesToStorage(notes, function () {
-            deleteNotes(notes);
             refreshMainPage();
             window.close();
         });
     });
 }
 
-restoreSavedNotes.onclick = function (element) {
+restoreNotes.onclick = function (element) {
     getNotesFromStorage(function (notes) {
         const notesAsText = notes.map(function (note) {
             return note.text;
@@ -44,6 +47,14 @@ restoreNotesFromClipboard.onclick = function () {
     addNotes(lines);
     refreshMainPage();
     window.close();
+}
+
+clearNotes.onclick = function (element) {
+    getNotes(function (notes) {
+        deleteNotes(notes);
+        refreshMainPage();
+        window.close();
+    });
 }
 
 function waitForPopupDomToLoad(afterLoaded) {
@@ -225,14 +236,14 @@ function setButtonDisabledState(buttonElement, disabled) {
     }
 }
 
-function canClearAndSaveNotes(useValue) {
+function canSaveNotes(useValue) {
     getNotes(function (notes) {
         useValue(!!(notes && notes.length > 0));
     });
 }
 
 function canRestoreNotes(useValue) {
-    getNotesFromStorage(function(notes) {
+    getNotesFromStorage(function (notes) {
         useValue(!!(notes && notes.length > 0));
     });
 }
@@ -240,4 +251,10 @@ function canRestoreNotes(useValue) {
 function canRestoreNotesFromClipboard() {
     const trimmedLines = getTrimmedLinesFromClipboard();
     return !!(trimmedLines && trimmedLines.length > 0);
+}
+
+function canClearNotes(useValue) {
+    getNotes(function (notes) {
+        useValue(!!(notes && notes.length > 0));
+    });
 }
