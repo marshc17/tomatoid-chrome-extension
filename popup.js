@@ -4,8 +4,12 @@ const hiddenTextareaId = 'hidden-clipboard-text-element';
 const requestUrlBasePath = 'https://www.tomatoid.com/';
 
 waitForPopupDomToLoad(function () {
-    getNotes(function (notes) {
-        saveAndClearNotes.disabled = !(notes && notes.length > 0);
+    canClearAndSaveNotes(function (enabled) {
+        setButtonDisabledState(saveAndClearNotes, !enabled);
+    });
+
+    canRestoreNotes(function(enabled) {
+        setButtonDisabledState(restoreNotes, !enabled);
     });
 });
 
@@ -206,5 +210,27 @@ function refreshMainPage() {
         chrome.tabs.sendMessage(currentTab.id, {
             request: 'refreshPage'
         });
+    });
+}
+
+function setButtonDisabledState(buttonElement, disabled) {
+    buttonElement.disabled = disabled;
+
+    if (disabled) {
+        buttonElement.classList.add('disabled-button');
+    } else {
+        buttonElement.classList.remove('disabled-button');
+    }
+}
+
+function canClearAndSaveNotes(useValue) {
+    getNotes(function (notes) {
+        useValue(notes && notes.length > 0);
+    });
+}
+
+function canRestoreNotes(useValue) {
+    getNotesFromStorage(function(notes) {
+        useValue(notes && notes.length > 0);
     });
 }
