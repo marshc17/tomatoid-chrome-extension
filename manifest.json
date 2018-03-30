@@ -1,0 +1,30 @@
+{
+    "name": "Tomatoid Extension",
+    "version": "1.0",
+    "description": "An extension with enhancements for Tomatoid.",
+    "permissions": ["activeTab", "declarativeContent", "storage"],
+    "background": {
+        "scripts": ["background.js"],
+        "persistent": false
+    },
+    "content_scripts": [{
+        "matches": ["*://*.tomatoid.com/*"],
+        "js": ["content.js"]
+    }],
+    "page_action": {
+        "default_popup": "popup.html",
+        "default_icon": {
+            "16": "images/tomatoid16.png",
+            "32": "images/tomatoid32.png",
+            "48": "images/tomatoid48.png",
+            "128": "images/tomatoid128.png"
+        }
+    },
+    "icons": {
+        "16": "images/tomatoid16.png",
+        "32": "images/tomatoid32.png",
+        "48": "images/tomatoid48.png",
+        "128": "images/tomatoid128.png"
+    },
+    "manifest_version": 2
+}
